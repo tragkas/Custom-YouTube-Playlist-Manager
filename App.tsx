@@ -73,11 +73,11 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-700 text-white font-sans">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
         <header className="text-center mb-8">
-          <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-400 mt-10">
-            Custom YouTube Playlist Manager
+          <h1 className="text-5xl sm:text-6xl font-extrabold text-white mt-10">
+            Custom YouTube Playlists <br/ > for Your Interests.
           </h1>
-          <p className="mt-2 text-lg text-gray-400">
-            Organize, track, and watch your favorite YouTube videos in custom playlists.
+          <p className="mt-5 text-lg text-white">
+            Turn YouTube into your personal productivity playlist.
           </p>
         </header>
 
