@@ -121,7 +121,7 @@ const VideoItem: React.FC<VideoItemProps> = ({
         </button>
         <button
           onClick={onToggleWatched}
-          className={`p-1.5 rounded-full transition-colors ${video.watched ? 'bg-green-500 text-white' : 'bg-gray-600 text-gray-300 hover:bg-green-600'}`}
+          className={`p-1.5 rounded-full transition-colors ${video.watched ? 'bg-blue-500 text-white' : 'bg-gray-600 text-gray-300 hover:bg-blue-600'}`}
           title={video.watched ? "Mark as Unwatched" : "Mark as Watched"}
         >
           <CheckIcon className="h-4 w-4" />
