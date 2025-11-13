@@ -180,6 +180,10 @@ const Playlist: React.FC<PlaylistProps> = ({
         ) : (
           <h2 onDoubleClick={() => setIsEditingName(true)} className="text-2xl font-bold flex-grow cursor-pointer select-none">{playlist.name}</h2>
         )}
+        <div className="flex items-center gap-2 text-gray-400 text-sm flex-shrink-0">
+            <span>({watchedCount}/{totalCount})</span>
+            <span className="font-semibold">{Math.round(progress)}%</span>
+        </div>
         <button 
           onClick={() => setIsOpen(!isOpen)} 
           className="p-2 text-gray-400 hover:bg-gray-700 rounded-full transition-colors" 
@@ -194,15 +198,11 @@ const Playlist: React.FC<PlaylistProps> = ({
 
       <div className={`grid transition-all duration-500 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100 pt-4' : 'grid-rows-[0fr] opacity-0'}`}>
         <div className="overflow-hidden space-y-4">
-            <div>
-                <div className="flex justify-between items-center mb-1 text-sm text-gray-400">
-                    <span>Progress ({watchedCount}/{totalCount})</span>
-                    <span className="font-semibold">{Math.round(progress)}%</span>
-                </div>
+            {totalCount > 0 &&
                 <div className="w-full bg-gray-700 rounded-full h-2.5">
-                <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                    <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
                 </div>
-            </div>
+            }
 
             <ul className="space-y-2">
                 {playlist.videos.map((video, idx) => (
