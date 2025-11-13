@@ -30,13 +30,13 @@ const Playlist: React.FC<PlaylistProps> = ({
 }) => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [playlistName, setPlaylistName] = useState(playlist.name);
-  const [newVideoName, setNewVideoName] = useState('');
   const [newVideoUrl, setNewVideoUrl] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
+  const [isAddingVideo, setIsAddingVideo] = useState(false);
 
   const nameInputRef = useRef<HTMLInputElement>(null);
-  const addVideoNameInputRef = useRef<HTMLInputElement>(null);
+  const addVideoUrlInputRef = useRef<HTMLInputElement>(null);
   
   // D&D state for videos
   const draggedVideoIndex = useRef<number | null>(null);
@@ -52,7 +52,7 @@ const Playlist: React.FC<PlaylistProps> = ({
   
   useEffect(() => {
     if (showAddForm) {
-      addVideoNameInputRef.current?.focus();
+      addVideoUrlInputRef.current?.focus();
     }
   }, [showAddForm]);
 
@@ -66,20 +66,40 @@ const Playlist: React.FC<PlaylistProps> = ({
     }
   };
   
-  const handleAddVideo = (e: React.FormEvent) => {
+  const handleAddVideo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newVideoName.trim() && newVideoUrl.trim()) {
-      const newVideo: Video = {
-        id: `vid-${Date.now()}-${Math.random()}`,
-        name: newVideoName.trim(),
-        url: newVideoUrl.trim(),
-        watched: false,
-      };
-      onUpdate({ ...playlist, videos: [...playlist.videos, newVideo] });
-      setNewVideoName('');
-      setNewVideoUrl('');
-      setShowAddForm(false);
+    if (!newVideoUrl.trim() || isAddingVideo) return;
+
+    setIsAddingVideo(true);
+    let videoName = "Untitled Video";
+
+    try {
+      // Using noembed.com as a proxy to fetch video metadata without CORS issues.
+      const response = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(newVideoUrl.trim())}`);
+      const data = await response.json();
+
+      if (response.ok && data.title) {
+        videoName = data.title;
+      } else if (data.error) {
+        throw new Error(data.error);
+      } else {
+        throw new Error('Could not retrieve video title.');
+      }
+    } catch (error: any) {
+      console.error("Error fetching video title:", error);
+      alert(`Could not fetch video details: ${error.message}. Please check the URL. A default name will be used.`);
     }
+
+    const newVideo: Video = {
+      id: `vid-${Date.now()}-${Math.random()}`,
+      name: videoName,
+      url: newVideoUrl.trim(),
+      watched: false,
+    };
+    onUpdate({ ...playlist, videos: [...playlist.videos, newVideo] });
+    setNewVideoUrl('');
+    setShowAddForm(false);
+    setIsAddingVideo(false);
   };
   
   const handleUpdateVideo = (videoId: string, name: string, url: string) => {
@@ -199,28 +219,26 @@ const Playlist: React.FC<PlaylistProps> = ({
             
             {showAddForm ? (
                 <form onSubmit={handleAddVideo} className="space-y-3 pt-2">
-                <div className="flex flex-col sm:flex-row gap-2">
                     <input
-                    ref={addVideoNameInputRef}
-                    type="text"
-                    value={newVideoName}
-                    onChange={(e) => setNewVideoName(e.target.value)}
-                    placeholder="Video Name"
-                    className="flex-grow bg-gray-700 text-white p-2 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-                    required
+                        ref={addVideoUrlInputRef}
+                        type="url"
+                        value={newVideoUrl}
+                        onChange={(e) => setNewVideoUrl(e.target.value)}
+                        placeholder="Paste a YouTube URL"
+                        className="w-full bg-gray-700 text-white p-2 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                        disabled={isAddingVideo}
                     />
-                    <input
-                    type="url"
-                    value={newVideoUrl}
-                    onChange={(e) => setNewVideoUrl(e.target.value)}
-                    placeholder="YouTube URL"
-                    className="flex-grow bg-gray-700 text-white p-2 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                    />
-                </div>
                 <div className="flex justify-end gap-2">
-                    <button type="button" onClick={() => setShowAddForm(false)} className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition-colors">Cancel</button>
-                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">Add</button>
+                    <button type="button" onClick={() => setShowAddForm(false)} className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition-colors disabled:opacity-50" disabled={isAddingVideo}>Cancel</button>
+                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center w-[76px] disabled:opacity-50" disabled={isAddingVideo}>
+                        {isAddingVideo ? (
+                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        ) : 'Add'}
+                    </button>
                 </div>
                 </form>
             ) : (
