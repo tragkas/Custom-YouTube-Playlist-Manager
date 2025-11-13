@@ -2,14 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Playlist as PlaylistType } from './types';
 import Playlist from './components/Playlist';
 import VideoPlayer from './components/VideoPlayer';
-import { PlusIcon } from './components/Icons';
+import { PlusIcon, ImportIcon } from './components/Icons';
 import { loadPlaylistsFromLocalStorage, savePlaylistsToLocalStorage } from './utils/storage';
 import ConfirmationModal from './components/ConfirmationModal';
+import ImportPlaylistModal from './components/ImportPlaylistModal';
 
 const App: React.FC = () => {
   const [playlists, setPlaylists] = useState<PlaylistType[]>(loadPlaylistsFromLocalStorage);
   const [playingVideoUrl, setPlayingVideoUrl] = useState<string | null>(null);
   const [playlistToDelete, setPlaylistToDelete] = useState<PlaylistType | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Drag-and-drop state for playlists
   const draggedPlaylistIndex = useRef<number | null>(null);
@@ -28,6 +30,10 @@ const App: React.FC = () => {
       videos: [],
     };
     setPlaylists([...playlists, newPlaylist]);
+  };
+
+  const handleImportPlaylist = (newPlaylist: PlaylistType) => {
+    setPlaylists(prevPlaylists => [...prevPlaylists, newPlaylist]);
   };
 
   const deletePlaylist = (playlistId: string) => {
@@ -89,13 +95,20 @@ const App: React.FC = () => {
           </p>
         </header>
 
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center flex-wrap gap-4 mb-8">
           <button
             onClick={addPlaylist}
             className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:scale-105 transform transition-transform duration-200"
           >
             <PlusIcon />
             Create New Playlist
+          </button>
+          <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:scale-105 transform transition-transform duration-200"
+          >
+            <ImportIcon />
+            Import Playlist
           </button>
         </div>
 
@@ -132,6 +145,11 @@ const App: React.FC = () => {
         onConfirm={confirmDeletePlaylist}
         title="Delete Playlist?"
         message={`Are you sure you want to delete the playlist "${playlistToDelete?.name}"? This will also delete all videos within it. This action cannot be undone.`}
+       />
+       <ImportPlaylistModal 
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleImportPlaylist}
        />
     </div>
   );
