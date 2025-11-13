@@ -83,7 +83,7 @@ const ImportPlaylistModal: React.FC<ImportPlaylistModalProps> = ({ isOpen, onClo
             {error && <p className="text-red-400 text-sm">{error}</p>}
 
             <div className="text-xs text-gray-500 bg-gray-900 p-2 rounded-md">
-                <strong>Note:</strong> Due to YouTube's RSS feed limitations, only the 15 most recent videos of a playlist can be imported.
+                <strong>Note:</strong> Due to YouTube's RSS feed limitations, only the 10 most recent videos of a playlist can be imported.
             </div>
         </div>
 
