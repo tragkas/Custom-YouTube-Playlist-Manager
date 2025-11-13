@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Playlist as PlaylistType, Video } from '../types';
 import VideoItem from './VideoItem';
 import { TrashIcon, PlusIcon, GripVerticalIcon, ChevronDownIcon } from './Icons';
+import ConfirmationModal from './ConfirmationModal';
 
 interface PlaylistProps {
   playlist: PlaylistType;
@@ -34,6 +35,8 @@ const Playlist: React.FC<PlaylistProps> = ({
   const [showAddForm, setShowAddForm] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const [isAddingVideo, setIsAddingVideo] = useState(false);
+  const [videoToDelete, setVideoToDelete] = useState<Video | null>(null);
+
 
   const nameInputRef = useRef<HTMLInputElement>(null);
   const addVideoUrlInputRef = useRef<HTMLInputElement>(null);
@@ -112,6 +115,7 @@ const Playlist: React.FC<PlaylistProps> = ({
   const handleDeleteVideo = (videoId: string) => {
     const updatedVideos = playlist.videos.filter(v => v.id !== videoId);
     onUpdate({ ...playlist, videos: updatedVideos });
+    setVideoToDelete(null);
   };
 
   const handleToggleWatched = (videoId: string) => {
@@ -150,6 +154,7 @@ const Playlist: React.FC<PlaylistProps> = ({
   const progress = totalCount > 0 ? (watchedCount / totalCount) * 100 : 0;
 
   return (
+    <>
     <div
       draggable
       onDragStart={(e) => onDragStart(e, index)}
@@ -205,7 +210,7 @@ const Playlist: React.FC<PlaylistProps> = ({
                     key={video.id}
                     video={video}
                     index={idx}
-                    onDelete={() => handleDeleteVideo(video.id)}
+                    onDelete={() => setVideoToDelete(video)}
                     onToggleWatched={() => handleToggleWatched(video.id)}
                     onUpdate={(name, url) => handleUpdateVideo(video.id, name, url)}
                     onPlay={() => onPlayVideo(video.url)}
@@ -225,7 +230,7 @@ const Playlist: React.FC<PlaylistProps> = ({
                         value={newVideoUrl}
                         onChange={(e) => setNewVideoUrl(e.target.value)}
                         placeholder="Paste a YouTube URL"
-                        className="w-full bg-gray-700 text-white p-2 rounded-md outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-gray-700 text-white p-2 rounded-md outline-none border-b-2 border-transparent focus:border-blue-500 transition-colors"
                         required
                         disabled={isAddingVideo}
                     />
@@ -250,6 +255,14 @@ const Playlist: React.FC<PlaylistProps> = ({
         </div>
       </div>
     </div>
+    <ConfirmationModal
+        isOpen={!!videoToDelete}
+        onClose={() => setVideoToDelete(null)}
+        onConfirm={() => videoToDelete && handleDeleteVideo(videoToDelete.id)}
+        title="Delete Video?"
+        message={`Are you sure you want to delete "${videoToDelete?.name}"? This action cannot be undone.`}
+    />
+    </>
   );
 };
 

@@ -4,11 +4,12 @@ import Playlist from './components/Playlist';
 import VideoPlayer from './components/VideoPlayer';
 import { PlusIcon } from './components/Icons';
 import { loadPlaylistsFromLocalStorage, savePlaylistsToLocalStorage } from './utils/storage';
+import ConfirmationModal from './components/ConfirmationModal';
 
 const App: React.FC = () => {
   const [playlists, setPlaylists] = useState<PlaylistType[]>(loadPlaylistsFromLocalStorage);
-
   const [playingVideoUrl, setPlayingVideoUrl] = useState<string | null>(null);
+  const [playlistToDelete, setPlaylistToDelete] = useState<PlaylistType | null>(null);
 
   // Drag-and-drop state for playlists
   const draggedPlaylistIndex = useRef<number | null>(null);
@@ -31,6 +32,13 @@ const App: React.FC = () => {
 
   const deletePlaylist = (playlistId: string) => {
     setPlaylists(playlists.filter(p => p.id !== playlistId));
+  };
+  
+  const confirmDeletePlaylist = () => {
+    if (playlistToDelete) {
+      deletePlaylist(playlistToDelete.id);
+      setPlaylistToDelete(null);
+    }
   };
 
 
@@ -97,7 +105,7 @@ const App: React.FC = () => {
                     <Playlist
                     key={playlist.id}
                     playlist={playlist}
-                    onDelete={() => deletePlaylist(playlist.id)}
+                    onDelete={() => setPlaylistToDelete(playlist)}
                     onUpdate={updatePlaylist}
                     onPlayVideo={setPlayingVideoUrl}
                     index={index}
@@ -118,6 +126,13 @@ const App: React.FC = () => {
       </div>
 
       {playingVideoUrl && <VideoPlayer videoUrl={playingVideoUrl} onClose={() => setPlayingVideoUrl(null)} />}
+      <ConfirmationModal
+        isOpen={!!playlistToDelete}
+        onClose={() => setPlaylistToDelete(null)}
+        onConfirm={confirmDeletePlaylist}
+        title="Delete Playlist?"
+        message={`Are you sure you want to delete the playlist "${playlistToDelete?.name}"? This will also delete all videos within it. This action cannot be undone.`}
+       />
     </div>
   );
 };
