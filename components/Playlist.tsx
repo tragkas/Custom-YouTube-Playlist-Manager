@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Playlist as PlaylistType, Video } from '../types';
 import VideoItem from './VideoItem';
@@ -33,7 +34,7 @@ const Playlist: React.FC<PlaylistProps> = ({
   const [playlistName, setPlaylistName] = useState(playlist.name);
   const [newVideoUrl, setNewVideoUrl] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [isAddingVideo, setIsAddingVideo] = useState(false);
   const [videoToDelete, setVideoToDelete] = useState<Video | null>(null);
 
