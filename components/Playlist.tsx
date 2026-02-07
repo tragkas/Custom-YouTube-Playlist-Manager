@@ -38,7 +38,6 @@ const Playlist: React.FC<PlaylistProps> = ({
   const [isAddingVideo, setIsAddingVideo] = useState(false);
   const [videoToDelete, setVideoToDelete] = useState<Video | null>(null);
 
-
   const nameInputRef = useRef<HTMLInputElement>(null);
   const addVideoUrlInputRef = useRef<HTMLInputElement>(null);
   
@@ -46,6 +45,7 @@ const Playlist: React.FC<PlaylistProps> = ({
   const draggedVideoIndex = useRef<number | null>(null);
   const dragOverVideoIndex = useRef<number | null>(null);
   const [draggingVideo, setDraggingVideo] = useState<number | null>(null);
+  const [dragOverVideo, setDragOverVideo] = useState<number | null>(null);
 
 
   useEffect(() => {
@@ -78,7 +78,6 @@ const Playlist: React.FC<PlaylistProps> = ({
     let videoName = "Untitled Video";
 
     try {
-      // Using noembed.com as a proxy to fetch video metadata without CORS issues.
       const response = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(newVideoUrl.trim())}`);
       const data = await response.json();
 
@@ -127,15 +126,22 @@ const Playlist: React.FC<PlaylistProps> = ({
   };
   
   // Video D&D handlers
-  const handleVideoDragStart = (e: React.DragEvent<HTMLLIElement>, index: number) => {
-    draggedVideoIndex.current = index;
-    setDraggingVideo(index);
+  const handleVideoDragStart = (e: React.DragEvent<HTMLLIElement>, idx: number) => {
+    draggedVideoIndex.current = idx;
+    setDraggingVideo(idx);
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleVideoDragEnter = (e: React.DragEvent<HTMLLIElement>, index: number) => {
-    dragOverVideoIndex.current = index;
+  const handleVideoDragEnter = (e: React.DragEvent<HTMLLIElement>, idx: number) => {
+    if (draggedVideoIndex.current !== idx) {
+        dragOverVideoIndex.current = idx;
+        setDragOverVideo(idx);
+    }
   };
+
+  const handleVideoDragLeave = () => {
+    setDragOverVideo(null);
+  }
 
   const handleVideoDragEnd = () => {
     if (draggedVideoIndex.current !== null && dragOverVideoIndex.current !== null) {
@@ -147,6 +153,7 @@ const Playlist: React.FC<PlaylistProps> = ({
     draggedVideoIndex.current = null;
     dragOverVideoIndex.current = null;
     setDraggingVideo(null);
+    setDragOverVideo(null);
   };
 
 
@@ -162,10 +169,17 @@ const Playlist: React.FC<PlaylistProps> = ({
       onDragEnter={(e) => onDragEnter(e, index)}
       onDragEnd={onDragEnd}
       onDragOver={(e) => e.preventDefault()}
-      className={`bg-gray-800 p-4 rounded-lg shadow-lg transition-all duration-300 ${isDragging ? 'opacity-30 scale-95' : 'opacity-100 scale-100'} ${hasDragOver ? 'border-2 border-dashed border-blue-500' : 'border-2 border-transparent'}`}
+      className={`bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl transition-all duration-300 relative
+        ${isDragging ? 'opacity-20 scale-[0.98] blur-[1px]' : 'opacity-100 scale-100'} 
+        ${hasDragOver ? 'ring-2 ring-indigo-500 bg-slate-800/50' : 'ring-0 shadow-indigo-950/20'}`}
     >
-      <div className="flex items-center gap-3">
-        <div className="cursor-grab text-gray-500 touch-none">
+      {/* Playlist Drag Indicator Overlay */}
+      {hasDragOver && (
+        <div className="absolute inset-0 bg-indigo-500/5 pointer-events-none rounded-2xl border-2 border-indigo-500/50 border-dashed z-0"></div>
+      )}
+
+      <div className="flex items-center gap-3 relative z-10">
+        <div className="cursor-grab text-slate-600 touch-none active:cursor-grabbing hover:text-slate-300 transition-colors">
             <GripVerticalIcon className="h-6 w-6"/>
         </div>
         {isEditingName ? (
@@ -176,36 +190,36 @@ const Playlist: React.FC<PlaylistProps> = ({
             onChange={(e) => setPlaylistName(e.target.value)}
             onBlur={handleNameUpdate}
             onKeyDown={(e) => e.key === 'Enter' && handleNameUpdate()}
-            className="text-2xl font-bold bg-gray-700 text-white p-1 rounded-md flex-grow outline-none focus:ring-2 focus:ring-blue-500"
+            className="text-xl font-semibold bg-slate-800 text-white px-3 py-1 rounded-lg flex-grow outline-none border border-indigo-500/50 shadow-[0_0_10px_rgba(79,70,229,0.1)]"
           />
         ) : (
-          <h2 onDoubleClick={() => setIsEditingName(true)} className="text-2xl font-bold flex-grow cursor-pointer select-none">{playlist.name}</h2>
+          <h2 onDoubleClick={() => setIsEditingName(true)} className="text-xl font-semibold text-slate-100 flex-grow cursor-pointer select-none truncate hover:text-indigo-400 transition-colors">{playlist.name}</h2>
         )}
-        <div className="flex items-center gap-2 text-gray-400 text-sm flex-shrink-0">
-            <span>({watchedCount}/{totalCount})</span>
-            <span className="font-semibold">{Math.round(progress)}%</span>
+        <div className="flex items-center gap-3 px-3 py-1 bg-slate-950/50 rounded-lg border border-slate-800/50 flex-shrink-0">
+            <span className="text-xs text-slate-500 font-medium tracking-wider uppercase">{watchedCount}/{totalCount}</span>
+            <span className="text-sm font-bold text-indigo-400">{Math.round(progress)}%</span>
         </div>
         <button 
           onClick={() => setIsOpen(!isOpen)} 
-          className="p-2 text-gray-400 hover:bg-gray-700 rounded-full transition-colors" 
+          className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-colors" 
           aria-label={isOpen ? "Collapse playlist" : "Expand playlist"}
         >
-          <ChevronDownIcon className={`h-6 w-6 transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`} />
+          <ChevronDownIcon className={`h-5 w-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`} />
         </button>
-        <button onClick={onDelete} className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-700 rounded-full transition-colors" title="Delete Playlist">
-          <TrashIcon />
+        <button onClick={onDelete} className="p-2 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-colors" title="Delete Playlist">
+          <TrashIcon className="h-5 w-5" />
         </button>
       </div>
 
-      <div className={`grid transition-all duration-500 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100 pt-4' : 'grid-rows-[0fr] opacity-0'}`}>
-        <div className="overflow-hidden space-y-4">
+      <div className={`grid transition-all duration-500 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100 pt-5' : 'grid-rows-[0fr] opacity-0'}`}>
+        <div className="overflow-hidden space-y-6">
             {totalCount > 0 &&
-                <div className="w-full bg-gray-700 rounded-full h-2.5">
-                    <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-indigo-500 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(79,70,229,0.6)]" style={{ width: `${progress}%` }}></div>
                 </div>
             }
 
-            <ul className="space-y-2">
+            <ul className="space-y-3" onDragLeave={handleVideoDragLeave}>
                 {playlist.videos.map((video, idx) => (
                 <VideoItem
                     key={video.id}
@@ -219,27 +233,28 @@ const Playlist: React.FC<PlaylistProps> = ({
                     onDragEnter={handleVideoDragEnter}
                     onDragEnd={handleVideoDragEnd}
                     isDragging={draggingVideo === idx}
+                    isDragOver={dragOverVideo === idx}
                 />
                 ))}
             </ul>
             
             {showAddForm ? (
-                <form onSubmit={handleAddVideo} className="space-y-3 pt-2">
+                <form onSubmit={handleAddVideo} className="bg-slate-950/30 p-4 rounded-xl border border-slate-800/50 space-y-4">
                     <input
                         ref={addVideoUrlInputRef}
                         type="url"
                         value={newVideoUrl}
                         onChange={(e) => setNewVideoUrl(e.target.value)}
-                        placeholder="Paste a YouTube URL"
-                        className="w-full bg-gray-700 text-white p-2 rounded-md outline-none border-b-2 border-transparent focus:border-blue-500 transition-colors"
+                        placeholder="YouTube Video URL..."
+                        className="w-full bg-slate-900 text-white p-3 rounded-lg outline-none border border-slate-800 focus:border-indigo-500/50 transition-all text-sm"
                         required
                         disabled={isAddingVideo}
                     />
-                <div className="flex justify-end gap-2">
-                    <button type="button" onClick={() => setShowAddForm(false)} className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition-colors disabled:opacity-50" disabled={isAddingVideo}>Cancel</button>
-                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center w-[76px] disabled:opacity-50" disabled={isAddingVideo}>
+                <div className="flex justify-end gap-3">
+                    <button type="button" onClick={() => setShowAddForm(false)} className="text-slate-400 hover:text-white px-4 py-2 text-sm font-medium transition-colors" disabled={isAddingVideo}>Cancel</button>
+                    <button type="submit" className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-indigo-500 transition-colors flex items-center gap-2 min-w-[80px] justify-center" disabled={isAddingVideo}>
                         {isAddingVideo ? (
-                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
@@ -248,9 +263,9 @@ const Playlist: React.FC<PlaylistProps> = ({
                 </div>
                 </form>
             ) : (
-                <button onClick={() => setShowAddForm(true)} className="w-full flex items-center justify-center gap-2 bg-gray-700/50 text-gray-300 p-2 rounded-md hover:bg-gray-700 hover:text-white transition-colors">
-                <PlusIcon className="h-5 w-5" />
-                Add Video
+                <button onClick={() => setShowAddForm(true)} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-dashed border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300 transition-all duration-200 bg-slate-950/20 group">
+                  <PlusIcon className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm font-medium">Add Video</span>
                 </button>
             )}
         </div>
@@ -260,8 +275,8 @@ const Playlist: React.FC<PlaylistProps> = ({
         isOpen={!!videoToDelete}
         onClose={() => setVideoToDelete(null)}
         onConfirm={() => videoToDelete && handleDeleteVideo(videoToDelete.id)}
-        title="Delete Video?"
-        message={`Are you sure you want to delete "${videoToDelete?.name}"? This action cannot be undone.`}
+        title="Remove Video"
+        message={`Remove "${videoToDelete?.name}" from this playlist?`}
     />
     </>
   );

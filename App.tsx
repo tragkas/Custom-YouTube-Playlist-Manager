@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Playlist as PlaylistType } from './types';
 import Playlist from './components/Playlist';
@@ -26,7 +27,7 @@ const App: React.FC = () => {
   const addPlaylist = () => {
     const newPlaylist: PlaylistType = {
       id: `pl-${Date.now()}`,
-      name: `New Playlist ${playlists.length + 1}`,
+      name: `New Learning Path ${playlists.length + 1}`,
       videos: [],
     };
     setPlaylists([...playlists, newPlaylist]);
@@ -84,36 +85,56 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-700 text-white font-sans">
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="text-center mb-8">
-          <h1 className="text-5xl sm:text-6xl font-extrabold text-white mt-10">
-            Custom YouTube Playlists <br/ > for Your Interests.
+    <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-indigo-500/30">
+      <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <header className="max-w-4xl mx-auto mb-20 text-center">
+          <div className="inline-flex items-center px-4 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold tracking-widest uppercase mb-8">
+            Learning Operating System
+          </div>
+          <h1 className="text-5xl sm:text-7xl font-extrabold text-white tracking-tight mb-8 leading-[1.1]">
+            Turn YouTube into your <br className="hidden sm:block" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-blue-400 to-indigo-400 animate-gradient-x">personal classroom.</span>
           </h1>
-          <p className="mt-5 text-lg text-white">
-            Turn YouTube into your personal productivity playlist.
+          <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            Stop losing your focus to the algorithm. Playliner helps you curate expert knowledge, track your progress, and master any skill without the distractions.
           </p>
         </header>
 
-        <div className="flex justify-center flex-wrap gap-4 mb-8">
+        <div className="flex justify-center items-center flex-wrap gap-6 mb-16">
           <button
             onClick={addPlaylist}
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:scale-105 transform transition-transform duration-200"
+            className="flex items-center gap-3 bg-indigo-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl shadow-indigo-600/20 hover:bg-indigo-500 hover:-translate-y-1 transition-all duration-300"
           >
             <PlusIcon />
-            Create New Playlist
+            Create Learning Path
           </button>
           <button
             onClick={() => setIsImportModalOpen(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:scale-105 transform transition-transform duration-200"
+            className="flex items-center gap-3 bg-slate-900 text-slate-200 font-bold px-8 py-4 rounded-2xl border border-slate-800 hover:bg-slate-800 hover:border-slate-700 hover:-translate-y-1 transition-all duration-300"
           >
             <ImportIcon />
-            Import Playlist
+            Sync YouTube Playlist
           </button>
         </div>
 
+        {/* Feature Micro-Trust Section */}
+        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 mb-20 text-center sm:text-left">
+           <div>
+             <div className="text-indigo-400 font-bold text-sm uppercase tracking-wider mb-2">Focused</div>
+             <p className="text-slate-500 text-sm">Watch content in a distraction-free player designed for deep work.</p>
+           </div>
+           <div>
+             <div className="text-indigo-400 font-bold text-sm uppercase tracking-wider mb-2">Trackable</div>
+             <p className="text-slate-500 text-sm">Visualize your progress with automatic completion percentages.</p>
+           </div>
+           <div>
+             <div className="text-indigo-400 font-bold text-sm uppercase tracking-wider mb-2">Organized</div>
+             <p className="text-slate-500 text-sm">Reorder videos to build the perfect logical sequence for learning.</p>
+           </div>
+        </div>
+
         {playlists.length > 0 ? (
-            <div className="space-y-6 max-w-4xl mx-auto" onDragLeave={handlePlaylistDragLeave}>
+            <div className="space-y-8 max-w-4xl mx-auto" onDragLeave={handlePlaylistDragLeave}>
                 {playlists.map((playlist, index) => (
                     <Playlist
                     key={playlist.id}
@@ -131,11 +152,23 @@ const App: React.FC = () => {
                 ))}
             </div>
         ) : (
-            <div className="text-center py-16 px-6 bg-gray-800 rounded-lg border-2 border-dashed border-gray-700 max-w-4xl mx-auto">
-                <h3 className="text-2xl font-semibold text-gray-300">Your space is empty!</h3>
-                <p className="mt-2 text-gray-500">Click "Create New Playlist" to get started and build your collection.</p>
+            <div className="text-center py-32 px-6 bg-slate-900/30 rounded-[2rem] border border-slate-900 border-dashed max-w-4xl mx-auto">
+                <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-slate-800">
+                  <PlusIcon className="h-10 w-10 text-indigo-500" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-100">Your journey starts here.</h3>
+                <p className="mt-4 text-slate-500 max-w-md mx-auto leading-relaxed">
+                  The best time to start learning was yesterday. Create your first path or import a playlist to begin tracking your growth.
+                </p>
             </div>
         )}
+
+        <footer className="max-w-4xl mx-auto mt-32 pb-12 text-center">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent mb-12"></div>
+          <p className="text-slate-600 text-xs font-medium tracking-widest uppercase">
+            Designed for the curious. &copy; {new Date().getFullYear()} Playliner
+          </p>
+        </footer>
       </div>
 
       {playingVideoUrl && <VideoPlayer videoUrl={playingVideoUrl} onClose={() => setPlayingVideoUrl(null)} />}
@@ -143,8 +176,8 @@ const App: React.FC = () => {
         isOpen={!!playlistToDelete}
         onClose={() => setPlaylistToDelete(null)}
         onConfirm={confirmDeletePlaylist}
-        title="Delete Playlist?"
-        message={`Are you sure you want to delete the playlist "${playlistToDelete?.name}"? This will also delete all videos within it. This action cannot be undone.`}
+        title="Delete Playlist"
+        message={`This will permanently remove "${playlistToDelete?.name}" and all ${playlistToDelete?.videos.length} videos inside it.`}
        />
        <ImportPlaylistModal 
         isOpen={isImportModalOpen}

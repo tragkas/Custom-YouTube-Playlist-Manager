@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { XIcon } from './Icons';
 
@@ -14,38 +15,38 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300"
+      className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[60] transition-opacity duration-300"
       onClick={onClose}
       aria-modal="true"
       role="dialog"
     >
       <div 
-        className="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 mx-4"
+        className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 mx-4 animate-in fade-in zoom-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-white">{title}</h3>
+          <h3 className="text-lg font-bold text-white">{title}</h3>
           <button 
             onClick={onClose} 
-            className="text-gray-400 hover:text-white"
+            className="text-slate-500 hover:text-white p-1 rounded-lg transition-colors"
             aria-label="Close"
           >
             <XIcon className="h-5 w-5" />
           </button>
         </div>
-        <p className="text-gray-300 mb-6">{message}</p>
-        <div className="flex justify-end gap-4">
+        <p className="text-slate-400 text-sm mb-8 leading-relaxed">{message}</p>
+        <div className="flex justify-end gap-3">
           <button 
             onClick={onClose}
-            className="px-4 py-2 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-gray-500"
+            className="px-4 py-2 bg-slate-800 text-slate-300 text-sm font-semibold rounded-xl border border-slate-700 hover:bg-slate-700 transition-colors"
           >
-            Cancel
+            Keep it
           </button>
           <button 
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-red-500"
+            className="px-4 py-2 bg-red-600/10 text-red-500 text-sm font-semibold rounded-xl border border-red-600/20 hover:bg-red-600 hover:text-white transition-all duration-200"
           >
-            Delete
+            Confirm Delete
           </button>
         </div>
       </div>

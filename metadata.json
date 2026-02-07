@@ -1,5 +1,5 @@
 {
-  "name": "YouTube Playlist Manager",
+  "name": "Project: YouTube Playlist",
   "description": "A one-page web app to create, manage, and track progress on custom YouTube video playlists. Features drag-and-drop reordering for both playlists and videos, inline editing, and a built-in video player.",
   "requestFramePermissions": []
 }
