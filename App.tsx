@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { Playlist as PlaylistType } from './types';
 import Playlist from './components/Playlist';
 import VideoPlayer from './components/VideoPlayer';
@@ -184,6 +185,7 @@ const App: React.FC = () => {
         onClose={() => setIsImportModalOpen(false)}
         onImport={handleImportPlaylist}
        />
+      <Analytics />
     </div>
   );
 };
